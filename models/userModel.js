@@ -31,12 +31,22 @@ const userSchema = new mongoose.Schema({
     role:{
         type:String,
         default:"user",
-    }
+    },
+    cart:{
+        type: Array,
+        default:[],
+    },
+    address:[{
+        type:ObjectId,ref:"Address"
+    }],
+    wishlist:[{type:ObjectId,ref:"Product"  }]
 });
 
 userSchema.pre('save', async function(next) {
     const salt =await bcrypt.genSaltSync(10);
     this.password = await bcrypt.hash(this.password, salt);
+},{
+    timestamps: true,
 });
 userSchema.methods.isPasswordMatched = async function(enteredPassword) {
 return await bcrypt.compare(enteredPassword, this.password);
