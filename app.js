@@ -6,20 +6,23 @@ const { notFound, errorHandler } = require('./middlewares/errorHandler');
 const app = express();
 const dotenv = require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
+const productRouter = require('./routes/productRoute');
 const cookieParser = require('cookie-parser');
-console.log('JWT_SECRET:', process.env.JWT_SECRET);
+const morgan = require('morgan');
 
 
 
 
 
 dbConnect(); // Initialize database connection
+app.use(morgan('dev'));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Use the authRoutes with /api/user prefix
 app.use('/api/user', authRoutes);
+app.use('/api/product',productRouter);
 
 // Error handling middleware
 app.use(notFound);

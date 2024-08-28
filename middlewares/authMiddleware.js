@@ -42,12 +42,15 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
 });
 
 const isAdmin = asyncHandler(async (req, res, next) => {
+    console.log(req.user);
+    
     // Check if req.user is set and destructure email from it
     if (!req.user) {
         return res.status(401).json({
             message: 'Not authorized, no user found',
         });
     }
+    
 
     const { email } = req.user;
     const adminUser = await User.findOne({ email });
