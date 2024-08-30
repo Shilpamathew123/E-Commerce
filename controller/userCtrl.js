@@ -190,6 +190,48 @@ const unblockUser=asyncHandler(async(req,res)=>{
      throw new Error(error);
     }
  })
+
+ const updatePassword=asyncHandler(async(req, res, next)=>{
+    console.log(req.body)
+
+    const{_id}=req.user;
+    const {password}=req.body;
+    validateMongoDbId(_id);
+    const user=await User.findById(_id);
+    if(user&&password){
+        user.password=password;
+        const updatedPassword=await user.save()
+        res.json(updatedPassword);
+    }
+    else{
+        res.json(user)
+    }
+ })
+
+
+ const forgotPasswordToken=asyncHandler(async(req,res,next)=>{
+    const {email}=req.body.email;
+    console.log("Email provided:", email);
+    const user=await User.findOne({email});
+    if(!user)throw new Error('User not found')
+        try{
+   const token=await user.createPasswordResetToken();
+   await user.save()
+   const resetURL=`Hi,please folow this link to reset your password.this link is valid till 10min from now.<a href='https:localhost:4000/api/usr/reset-password/${token}'>Click Here</a>`
+    const data={
+        to:email,
+        text:"Hey User",
+        subject:"forgot password link",
+        html:resetURL,
+    }
+    await sendEmail(data)
+    res.json({ message: 'Password reset link sent to your email', token })
+}catch{
+       throw new Error("Couldn't send email")
+    }
+
+
+ })
  
 
 
@@ -203,6 +245,8 @@ module.exports = {
 blockUser,
 unblockUser ,
 handleRefreshToken,
-logoutUser}; // Make sure it's an object with createUser
+logoutUser,
+updatePassword,
+forgotPasswordToken}; // Make sure it's an object with createUser
   
 

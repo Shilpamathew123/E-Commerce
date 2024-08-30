@@ -1,12 +1,14 @@
 // routes/authRoutes.js
 const express = require('express');
-const { createUser,loginUserCtrl,getallUser,getaUser,deleteUser,updateUser,blockUser,unblockUser, handleRefreshToken, logoutUser } = require('../controller/userCtrl'); 
+const { createUser,loginUserCtrl,getallUser,getaUser,deleteUser,updateUser,blockUser,unblockUser, handleRefreshToken, logoutUser,updatePassword,forgotPasswordToken } = require('../controller/userCtrl'); 
 const {authMiddleware,isAdmin} = require('../middlewares/authMiddleware');
 const router = express.Router();
 
 console.log(createUser);
 
 router.post('/register', createUser); 
+router.post('/forgot-password-token',forgotPasswordToken);
+router.put('/password',authMiddleware,updatePassword);
 router.post('/login', loginUserCtrl);
 router.get('/all-users',getallUser);
 router.get("/refresh",handleRefreshToken);
@@ -16,6 +18,7 @@ router.delete("/:id",deleteUser);
 router.put("/edit-user",authMiddleware,updateUser);
 router.put("/block-user/:id",authMiddleware,isAdmin,blockUser);
 router.put("/unblock-user/:id",authMiddleware,isAdmin,unblockUser);
+
 
 
 // router.post('/register',(req,res,next)=>{
