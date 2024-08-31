@@ -1,36 +1,49 @@
 const nodemailer=require('nodemailer');
-const asyncHandler = require('express-async-handler');
 
 
+// const sendEmail = async (options) => {
+//   const transporter = nodemailer.createTransport({
+//       service: 'Gmail',
+//       auth: {
+//           user: process.env.EMAIL_USER,
+//           pass: process.env.EMAIL_PASS
+//       }
+//   });
 
-const sendEmail=asyncHandler(async(data,req,res=>{
-    let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false, // Use `true` for port 465, `false` for all other ports
-        auth: {
+//   const mailOptions = {
+//       from: process.env.EMAIL_USER,
+//       to: options.to,
+//       subject: options.subject,
+//       html: options.html
+//   };
+
+//   await transporter.sendMail(mailOptions);
+// };
+
+
+const sendEmail = async (data) => {
+    console.log("Sending email to:", data.to);
+  let transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false, // Use `true` for port 465, `false` for all other ports
+      auth: {
           user: process.env.MAIL_ID,
           pass: process.env.MP,
-        },
-      });
-      
-      // async..await is not allowed in global scope, must use a wrapper
-      async function main() {
-        // send mail with defined transport object
-        let info = await transporter.sendMail({
-          from: '"Hey👻" <foo@gmail.com>', // sender address
-          to: data.to, // list of receivers
-          subject: data.subject, // Subject line
-          text: data.text, // plain text body
-          html: data.htm, // html body
-        });
-      
-        console.log("Message sent: %s", info.messageId);
-        // Message sent: <d786aa62-4e0a-070a-47ed-0b0666549519@ethereal.email>
-      }
+      },
+  });
 
-}))
+  // Send mail with defined transport object
+  let info = await transporter.sendMail({
+      from: '"Hey👻" <${process.env.MAIL_ID}>', // sender address
+      to: data.to, // list of receivers
+      subject: data.subject, // Subject line
+      text: data.text, // plain text body
+      html: data.html, // html body
+  });
 
+  console.log('Message sent: %s', info.messageId);
+}
 
 
 

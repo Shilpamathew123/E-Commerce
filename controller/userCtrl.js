@@ -5,6 +5,9 @@ const { generateToken } = require('../config/jwtToken');
 const validateMongoDbId = require('../utils/validateMongodbid');
 const { generateRefreshToken } = require('../config/refreshtoken');
 const jwt = require('jsonwebtoken');
+const sendEmail = require('./emailCtrl');
+const crypto = require('crypto');
+
 
 //create 
 const createUser = asyncHandler(async (req, res) => {
@@ -22,29 +25,66 @@ const createUser = asyncHandler(async (req, res) => {
     }
 });
 //login a user
-const loginUserCtrl=asyncHandler(async(req,res)=>{
-    const{email,password}=req.body;
-    //check if user already exists or not
-    const findUser=await User.findOne({email});
-    if(findUser && await findUser.isPasswordMatched(password)){
-        const refreshToken = generateRefreshToken(findUser?._id);
-        const updateUser = await User.findByIdAndUpdate(findUser.id, {
+// const loginUserCtrl=asyncHandler(async(req,res)=>{
+//     const{email,password}=req.body;
+//     //check if user already exists or not
+//     const findUser=await User.findOne({email});
+//     if(findUser && await findUser.isPasswordMatched(password)){
+//         const refreshToken = generateRefreshToken(findUser?._id);
+//         const updateUser = await User.findByIdAndUpdate(findUser.id, {
+//             refreshToken: refreshToken,
+//         }, { new: true });
+
+//         res.cookie('refreshToken', refreshToken, {
+//             httpOnly: true,
+//             maxAge: 1000 * 60 * 60 * 72,
+//         });
+//        res.json({
+//         _id: findUser._id,
+//         firstname: findUser.firstname,
+//         lastname: findUser.lastname,
+//         email: findUser.email,
+//         mobile: findUser.mobile,
+//         token: generateToken(findUser._id)
+//     });
+// } else{
+//         res.status(400).json({
+//             msg: "Invalid email or password",
+//             success: false,
+//         });
+//     }
+// });
+const loginUserCtrl = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+
+    // Check if user exists
+    const findUser = await User.findOne({ email });
+
+    if (findUser && await findUser.isPasswordMatched(password)) {
+        // Generate tokens
+        const refreshToken = generateRefreshToken(findUser._id);
+
+        // Update user with refresh token
+        const updateUser = await User.findByIdAndUpdate(findUser._id, {
             refreshToken: refreshToken,
         }, { new: true });
 
+        // Send the token as a cookie
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            maxAge: 1000 * 60 * 60 * 72,
+            maxAge: 1000 * 60 * 60 * 72, // 72 hours
         });
-       res.json({
-        _id: findUser._id,
-        firstname: findUser.firstname,
-        lastname: findUser.lastname,
-        email: findUser.email,
-        mobile: findUser.mobile,
-        token: generateToken(findUser._id)
-    });
-} else{
+
+        // Respond with user data and token
+        res.json({
+            _id: findUser._id,
+            firstname: findUser.firstname,
+            lastname: findUser.lastname,
+            email: findUser.email,
+            mobile: findUser.mobile,
+            token: generateToken(findUser._id)
+        });
+    } else {
         res.status(400).json({
             msg: "Invalid email or password",
             success: false,
@@ -209,30 +249,43 @@ const unblockUser=asyncHandler(async(req,res)=>{
  })
 
 
- const forgotPasswordToken=asyncHandler(async(req,res,next)=>{
-    const {email}=req.body.email;
+//  
+const forgotPasswordToken = asyncHandler(async (req, res, next) => {
+    const { email } = req.body; // Correct way to extract email from req.body
     console.log("Email provided:", email);
-    const user=await User.findOne({email});
-    if(!user)throw new Error('User not found')
-        try{
-   const token=await user.createPasswordResetToken();
-   await user.save()
-   const resetURL=`Hi,please folow this link to reset your password.this link is valid till 10min from now.<a href='https:localhost:4000/api/usr/reset-password/${token}'>Click Here</a>`
-    const data={
-        to:email,
-        text:"Hey User",
-        subject:"forgot password link",
-        html:resetURL,
-    }
-    await sendEmail(data)
-    res.json({ message: 'Password reset link sent to your email', token })
-}catch{
-       throw new Error("Couldn't send email")
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+        // Respond with an error if the user is not found
+        return res.status(404).json({ message: 'User not found' });
     }
 
+    try {
+        // Generate a password reset token
+        const token = await user.createPasswordResetToken();
+        await user.save();
 
- })
- 
+        // Create a reset URL
+        const resetURL = `Hi, please follow this link to reset your password. This link is valid for 10 minutes from now. <a href='http://localhost:4000/api/user/reset-password/${token}'>Click Here</a>`;
+
+        // Prepare email data
+        const data = {
+            to: email,
+            subject: 'Password Reset Link',
+            html: resetURL,
+        };
+
+        // Send the email
+       await  sendEmail(data);
+
+        // Respond to the client
+        res.json({ message: 'Password reset link sent to your email',token });
+    } catch (error) {
+        console.error('Error sending email:', error); // Log the error for debugging
+        return res.status(500).json({ message: "Couldn't send email" });
+    }
+});
 
 
 module.exports = { 

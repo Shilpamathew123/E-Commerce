@@ -4,6 +4,8 @@ const dbConnect = require('./config/dbConnect');
 const bodyParser = require('body-parser');
 const { notFound, errorHandler } = require('./middlewares/errorHandler');
 const app = express();
+const port=4000;
+
 const dotenv = require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const productRouter = require('./routes/productRoute');
@@ -14,6 +16,7 @@ const path= require('path');
 
 
 app.set('view engine', 'ejs')
+app.set('views', path.join(__dirname, 'views'));
 
 dbConnect(); // Initialize database connection
 app.use(morgan('dev'));
@@ -24,19 +27,18 @@ app.use(cookieParser());
 // Use the authRoutes with /api/user prefix
 app.use('/api/user', authRoutes);
 app.use('/api/product',productRouter);
-app.set('views', path.join(__dirname, 'views'));
+
 
 // Error handling middleware
 app.use(notFound);
 app.use(errorHandler);
 
 app.get('/', (req, res) => {
-  // Render the 'index' view and pass a variable 'name' to it
-  res.render('index', { name: 'User' });
+  res.send('Welcome to the E-commerce Application!');
 });
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+//const PORT = process.env.PORT || 4000;
+app.listen(4000, () => {
+  console.log(`Server is running on port ${port}`);
 });
 
