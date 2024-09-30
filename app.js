@@ -9,6 +9,10 @@ const port=4000;
 const dotenv = require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const productRouter = require('./routes/productRoute');
+const blogRouter= require('./routes/blogRoute');
+const categoryRouter= require('./routes/productcategoryRoute');
+const blogcategoryRouter= require('./routes/blogcatRoutes');
+const brandRouter= require('./routes/brandRoute');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const path= require('path');
@@ -27,6 +31,12 @@ app.use(cookieParser());
 // Use the authRoutes with /api/user prefix
 app.use('/api/user', authRoutes);
 app.use('/api/product',productRouter);
+app.use('/api/blog',blogRouter);
+app.use('/api/category',categoryRouter);
+app.use('/api/blogcategory',blogcategoryRouter);
+app.use('/api/brand',brandRouter);
+
+
 
 
 // Error handling middleware

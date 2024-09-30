@@ -1,6 +1,7 @@
 const nodemailer=require('nodemailer');
 
 
+
 // const sendEmail = async (options) => {
 //   const transporter = nodemailer.createTransport({
 //       service: 'Gmail',
@@ -21,7 +22,7 @@ const nodemailer=require('nodemailer');
 // };
 
 
-const sendEmail = async (data) => {
+const sendEmail = async (data,req,res) => {
     console.log("Sending email to:", data.to);
   let transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
@@ -35,7 +36,7 @@ const sendEmail = async (data) => {
 
   // Send mail with defined transport object
   let info = await transporter.sendMail({
-      from: '"Hey👻" <${process.env.MAIL_ID}>', // sender address
+      from: '"Hey👻" <foo@gmail.com>', // sender address
       to: data.to, // list of receivers
       subject: data.subject, // Subject line
       text: data.text, // plain text body

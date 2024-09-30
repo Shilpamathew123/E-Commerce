@@ -1,19 +1,19 @@
-// Not Found Middleware
 const notFound = (req, res, next) => {
-    const error = new Error(`Not Found: ${req.originalUrl}`);
+    const error = new Error(`Not Found : ${req.originalUrl}`);
     res.status(404);
     next(error);
-};
-
-// Error Handling Middleware
-const errorHandler = (error, req, res, next) => {
-    const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-    res.status(statusCode);
+  };
+  
+  // Error Handler
+  
+  const errorHandler = (err, req, res, next) => {
+    const statuscode = res.statusCode == 200 ? 500 : res.statusCode;
+    res.status(statuscode);
     res.json({
-        message: error.message,
-        // Conditionally show the stack trace only in development environment
-        stack: process.env.NODE_ENV === 'production' ? null : error.stack,
+      status: "fail",
+      message: err?.message,
+      stack: err?.stack,
     });
-};
-
-module.exports = { notFound, errorHandler };
+  };
+  
+  module.exports = { errorHandler, notFound };
