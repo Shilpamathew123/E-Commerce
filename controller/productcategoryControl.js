@@ -75,11 +75,11 @@ const getAllCategory=asyncHandler(async(req,res)=>{
 
 
 
-
 module.exports={
 createCategory,
 updateCategory,
 deleteCategory,
 getCategory,
-getAllCategory
+getAllCategory,
+
 }
