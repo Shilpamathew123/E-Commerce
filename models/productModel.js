@@ -43,13 +43,12 @@ var productSchema = new mongoose.Schema({
         type:Number,
         default:0,
     },
-    images:{
-        type:Array,
-        
-    },color:{
+    images:[],
+    color:{
         type:String,
         enum:['Black','brown','red'],
     },
+    urls:[],
     ratings:[{
         start: Number,
         postedBy: {
